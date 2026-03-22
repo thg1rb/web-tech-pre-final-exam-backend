@@ -21,6 +21,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->as('api.')->group(function 
         return $request->user();
     })->name('me');
 
+    Route::delete('/revoke', [AuthenticationController::class, 'revoke'])->name('user.revoke');
+
     // Only ADMIN (ability by role) can use this API endpoint
     // At least one valid ability can use this API endpoint
     Route::middleware(['ability:ADMIN'])->as('admin.')->group(function () {

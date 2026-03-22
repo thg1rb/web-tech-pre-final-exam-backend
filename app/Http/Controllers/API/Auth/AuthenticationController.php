@@ -30,11 +30,19 @@ class AuthenticationController extends Controller
         # Return the response
         return response()->json([
             'token' => $token,
+            'exdpires_at' => now()->addMinutes(config('sanctum.expiration'))->toDateTimeString(),
             'user' => [
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role
             ]
+        ]);
+    }
+
+    public function revoke(Request $request) {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            'message' => 'Token revoked'
         ]);
     }
 }

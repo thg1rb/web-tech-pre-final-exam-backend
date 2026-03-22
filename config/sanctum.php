@@ -46,8 +46,8 @@ return [
     | "expires_at" attribute, but first-party sessions are not affected.
     |
     */
-
-    'expiration' => null,
+    // null -> never expire
+    'expiration' => 1440,
 
     /*
     |--------------------------------------------------------------------------
