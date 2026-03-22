@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\Auth\AuthenticationController;
+use App\Http\Controllers\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,8 @@ Route::middleware(['throttle:api'])->as('api.')->group(function () {
     })->name('root');
 
     Route::post('/login', [AuthenticationController::class, 'login'])->name('user.login');
+    Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+    Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 });
 
 // Login Endpoints

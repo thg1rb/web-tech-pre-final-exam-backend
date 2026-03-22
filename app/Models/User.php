@@ -18,7 +18,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasApiTokens;
 
     protected $fillable = [ 
-        'name',
+        'username',
         'role',
         'email',
         'password'
@@ -41,5 +41,10 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => UserRole::class,
         ];
+    }
+
+    // References
+    public function posts() {
+        return $this->hasMany(Post::class, 'user_id', 'id');
     }
 }

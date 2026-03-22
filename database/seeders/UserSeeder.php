@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Enums\UserRole;
 use App\Models\User;
 use Hash;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -17,7 +16,7 @@ class UserSeeder extends Seeder
     {
         // ADMIN
         User::create([
-            'name' => 'Admin Account',
+            'username' => 'admin_account',
             'email' => 'admin@admin.com',
             'password' => Hash::make('password'),
             'role' => UserRole::ADMIN,
@@ -25,7 +24,7 @@ class UserSeeder extends Seeder
 
         // USER
         User::create([
-            'name' => 'User Account',
+            'username' => 'user_account',
             'email' => 'user@user.com',
             'password' => Hash::make('password'),
             'role' => UserRole::USER,
