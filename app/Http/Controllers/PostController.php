@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Storage;
+use Str;
 
 class PostController extends Controller
 {
@@ -21,9 +26,34 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
-        //
+        // Validate and return every fields in `rules` method
+        $data = $request->validated();
+
+        // Validate if `image` file exist
+        $path = null;
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('posts', [
+                'disk' => 's3',
+                'visibility' => 'public',
+            ]);
+        }
+
+        // Create new post in database
+        $post = Post::create([
+            'id' => Str::uuid(),
+            'user_id' => auth()->id(),
+            'title' => $data['title'],
+            'content' => $data['content'],
+            'image_path' => $path,
+        ]);
+
+        // Response
+        return response()->json([
+            'message' => 'Post created successfully',
+            'data' => $post,
+        ], 201);
     }
 
     /**
@@ -32,16 +62,37 @@ class PostController extends Controller
     public function show(Post $post)
     {
         $post->load('user');
-        
+
         return new PostResource($post);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Post $post)
+    public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        Gate::authorize('update', $post);
+
+        // Validate and return every fields in `rules` method
+        $data = $request->validated();
+
+        // New image
+        if ($request->hasFile('image')) {
+            // Delete old image
+            if ($post->image_path) {
+                Storage::disk('s3')->delete($post->image_path);
+            }
+
+            // Replace with new image
+            $data['image_path'] = $request->file('image')->store('posts', 's3');
+        }
+
+        $post->update(collect($data)->except('image')->toArray());
+        
+        return response()->json([
+            'message' => 'Post updated successfully',
+            'data' => $post,
+        ], 200);
     }
 
     /**
@@ -49,6 +100,13 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        // Authorization check; if not owner return 403
+        Gate::authorize('delete', $post);
+
+        $post->delete();
+
+        return response()->json([
+            'message' => 'Post deleted successfully',
+        ], 200);
     }
 }

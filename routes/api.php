@@ -33,4 +33,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->as('api.')->group(function 
             return response()->json(['message' => 'Welcome Admin']);
         })->name('dashboard');
     });
+
+    Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
+    Route::put('/posts/{post}', [PostController::class, 'update'])->name('posts.update');
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 });

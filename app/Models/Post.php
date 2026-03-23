@@ -13,6 +13,7 @@ class Post extends Model
     use HasFactory, HasUuids, SoftDeletes;
 
     protected $fillable = [
+        'id',
         'user_id',
         'title',
         'content',

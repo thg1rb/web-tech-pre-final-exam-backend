@@ -32,7 +32,7 @@ class AuthenticationController extends Controller
             'token' => $token,
             'exdpires_at' => now()->addMinutes(config('sanctum.expiration'))->toDateTimeString(),
             'user' => [
-                'name' => $user->name,
+                'username' => $user->username,
                 'email' => $user->email,
                 'role' => $user->role
             ]
