@@ -15,6 +15,7 @@ Route::middleware(['throttle:api'])->as('api.')->group(function () {
 
     Route::post('/login', [AuthenticationController::class, 'login'])->name('user.login');
     Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
+    Route::get('/posts/recommended', [PostController::class, 'recommended'])->name('posts.recommended');
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('posts.show');
 });
 

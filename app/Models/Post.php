@@ -12,6 +12,8 @@ class Post extends Model
     // Automatic generate UUID
     use HasFactory, HasUuids, SoftDeletes;
 
+    const CACHE_KEY_RECOMMENDED = "posts_recommended";
+
     protected $fillable = [
         'id',
         'user_id',
@@ -25,7 +27,8 @@ class Post extends Model
     protected $keyType = 'string';
 
     // References
-    public function user () {
+    public function user()
+    {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

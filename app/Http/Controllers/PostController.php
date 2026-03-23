@@ -6,7 +6,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Storage;
 use Str;
@@ -49,6 +49,9 @@ class PostController extends Controller
             'image_path' => $path,
         ]);
 
+        // Remove cache
+        Cache::forget(Post::CACHE_KEY_RECOMMENDED);
+
         // Response
         return response()->json([
             'message' => 'Post created successfully',
@@ -88,7 +91,7 @@ class PostController extends Controller
         }
 
         $post->update(collect($data)->except('image')->toArray());
-        
+
         return response()->json([
             'message' => 'Post updated successfully',
             'data' => $post,
@@ -105,8 +108,25 @@ class PostController extends Controller
 
         $post->delete();
 
+        // Remove cache
+        Cache::forget(Post::CACHE_KEY_RECOMMENDED);
+
         return response()->json([
             'message' => 'Post deleted successfully',
         ], 200);
+    }
+
+    public function recommended()
+    {
+        $posts = Cache::remember('posts_recommended', 60 * 60 * 24, function () {
+            // ใช้ toArray() หรือดึงเฉพาะค่าที่จำเป็นเพื่อเก็บเป็น Array ธรรมดา
+            return Post::query()->with('user')->inRandomOrder()->get()->toArray();
+        });
+
+        // เนื่องจากข้อมูลเป็น Array เราจึงส่งกลับเป็น JSON ตรงๆ 
+        // หรือถ้าต้องการ format เดิม ต้องใช้การ map เข้า Resource เอง
+        return response()->json([
+            'data' => $posts
+        ]);
     }
 }
