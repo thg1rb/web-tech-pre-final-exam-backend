@@ -118,13 +118,19 @@ class PostController extends Controller
 
     public function recommended()
     {
-        $posts = Cache::remember('posts_recommended', 60 * 60 * 24, function () {
-            // ใช้ toArray() หรือดึงเฉพาะค่าที่จำเป็นเพื่อเก็บเป็น Array ธรรมดา
-            return Post::query()->with('user')->inRandomOrder()->get()->toArray();
+        $posts = Cache::remember(Post::CACHE_KEY_RECOMMENDED, 60 * 60 * 24, function () {
+            return Post::query()->with('user')->inRandomOrder()->get()->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'title' => $post->title,
+                    'content' => $post->content,
+                    'author_name' => $post->user->username,
+                    'image_url' => $post->image_path ? Storage::disk('s3')->url($post->image_path) : null,
+                    'posted_at' => $post->created_at->diffForHumans(),
+                ];
+            })->toArray(); // แปลงเป็น Array ธรรมดาเพื่อเก็บลง Cache
         });
 
-        // เนื่องจากข้อมูลเป็น Array เราจึงส่งกลับเป็น JSON ตรงๆ 
-        // หรือถ้าต้องการ format เดิม ต้องใช้การ map เข้า Resource เอง
         return response()->json([
             'data' => $posts
         ]);
