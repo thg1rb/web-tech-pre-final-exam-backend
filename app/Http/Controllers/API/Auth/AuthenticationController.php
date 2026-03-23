@@ -25,7 +25,7 @@ class AuthenticationController extends Controller
         } 
             
         # Create auth token (with role ability)
-        $token = $user->createToken('auth_token', [$user->role])->plainTextToken;
+        $token = $user->createToken('auth_token', [$user->role->value])->plainTextToken;
 
         # Return the response
         return response()->json([
